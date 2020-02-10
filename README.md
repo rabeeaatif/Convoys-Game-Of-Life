@@ -65,6 +65,6 @@ Deadline: 1830h on Mon, 24 Feb
 
 Please use the following avenues:
 - discuss with your buddy
-- the [class forum](https://habibedu.workplace.com/groups/464262444262573/)
+- post in the [class forum](https://habibedu.workplace.com/groups/464262444262573/)
 - discuss with your peers
 - talk to course staff in their desginated hours
