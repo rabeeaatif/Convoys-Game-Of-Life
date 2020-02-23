@@ -1,0 +1,157 @@
+\documentclass[addpoints]{exam}
+
+\usepackage{caption}
+\usepackage{graphbox}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{multirow}
+\usepackage{ragged2e}
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+% Header and footer.
+\pagestyle{headandfoot}
+\runningheadrule
+\runningfootrule
+\runningheader{CS 201 Data Structures II}{HW 2: Skiplists and Hash Tables}{Spring 2020}
+\runningfooter{}{Page \thepage\ of \numpages}{}
+\firstpageheader{}{}{}
+
+% \qformat{{\large\bf \thequestion. \thequestiontitle}\hfill[\totalpoints\ points]}
+\qformat{{\large\bf \thequestion. \thequestiontitle}\hfill}
+\boxedpoints
+
+\printanswers
+
+\graphicspath{{images/}}
+
+\newcommand\colheader[1]{\multicolumn{1}{c}{#1}} % Note: no vertical bars
+
+% Colored Python listing from https://www.overleaf.com/learn/latex/Code_listing
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{Homework 2: Skiplists and Hash Tables}
+\author{CS 201 Data Structures II\\Habib University\\Spring 2020}
+% \date{\numpoints\ points, Due: 18h on Wednesday, 11 September}
+\date{cs201-s20-wild-dinosaurs}  % <=== Replace with your team name.
+
+\begin{document}
+\maketitle
+
+\part{Skiplists}
+
+The solutions to the following problems are to be entered inline below. Remove all other parts and sections from this document. Enter your team name for the date in the document's title.
+
+\begin{questions}
+
+\titledquestion{Redundant Comparisons}\footnote{Adapted from Exercise 4.8 from the textbook.}
+  The \texttt{find(x)} method in a \texttt{SkiplistSet} sometimes performs redundant comparisons; these occur when \texttt{x} is compared to the same value more than once. They can occur when, for some node, \texttt{u}, \texttt{u.next[r] = u.next[r-1]}.
+  \begin{parts}
+  \part What causes these redundant comparisons to happen?
+    \begin{solution}
+      Redundant comparisons occur when the \texttt{node} (on which we are currently) on any level has same \texttt{next node} (which overshoots the given value to be searched) as the list above or below it. So jumping down \texttt{single level} would make no difference because same comparison would be made again on \texttt{jumped down level}.
+    \end{solution}
+  \part Modify \texttt{find(x)} so that redundant comparisons are avoided.
+    \begin{solution}
+    \begin{algorithmic}
+    \Statex $u \leftarrow head_node$ \Comment{head node}
+    \Statex $r \leftarrow height$ \Comment{starting from top list}
+    \While {$r \geq 0$}
+    \While {$u.next[r]  \neq nil \land u.next[r].x < x$}
+    \State $u \leftarrow u.next[r]$ \Comment{go right in list r}
+    \EndWhile
+    \If {$u.next[r] == u.next[r-1]$}
+    \While {$u.next[r] == u.next[r-1]$} \Comment{keep going down into list r-1}
+    \State $r \leftarrow r-1$
+    \EndWhile
+    \Else
+    \State $r \leftarrow r - 1$  \Comment{go down into list r-1}
+    \EndIf
+    \EndWhile
+    \end{algorithmic}
+    \end{solution}
+  \end{parts}
+
+\titledquestion{A Ranked Set}\footnote{Adapted from Exercise 4.9 from the textbook.}
+  Design, i.e. provide the necessary pseudo code for, a version of a skiplist that implements the \texttt{SSet} interface, but also allows fast access to elements by \textit{rank}. That is, it also supports the function \texttt{get(i)}, which returns the element whose rank is \texttt{i} in $O(\log n)$ expected time. (The rank of an element \texttt{x} in an \texttt{SSet} is the number of elements in the \texttt{SSet} that are less than \texttt{x}.)
+  \begin{solution}
+  Assuming each node has a variable called \texttt{length} describing its position in the \texttt{base list L0}, the pseudocode for \texttt{get(i)} is given as:
+    \begin{algorithmic}
+    \Statex $u \leftarrow head_node$ \Comment{head node}
+    \Statex $r \leftarrow height$ \Comment{starting from top list}
+    \Statex $current\_position \leftarrow -1$ \Comment{current node at index 0}
+    \While {$r \geq 0$}
+    \While {$u.next[r]  \neq nil \land current\_position + u.length[r] < i$}
+    \State $current\_position \leftarrow current\_position + u.length[r]$ \Comment{go right in list r}
+    \State $u \leftarrow current\_position + u.length[r]$ \Comment{go right in list r}
+    \EndWhile
+    \State $r \leftarrow r - 1$  \Comment{go down into list r-1}
+    \EndWhile
+    \Statex return u.next[0].x
+    \end{algorithmic}
+  \end{solution}
+
+\titledquestion{Finger Search}\footnote{Adapted from Exercise 4.10 from the textbook.}
+  A \textit{finger} in a skiplist is an array that stores the sequence of nodes on a search path at which the search path goes down. (The variable \texttt{stack} in the \texttt{add(x)} code on page 87 is a finger; the shaded nodes in Figure 4.3 show the contents of the finger.) One can think of a finger as pointing out the path to a node in the lowest list, $L_0$.
+  
+  A \textit{finger search} implements the find(x) operation using a finger, walking up the list using the finger until reaching a node \texttt{u} such that \texttt{u.x < x} and \texttt{u.next = nil} or \texttt{u.next.x > x} and then performing a normal search for \texttt{x} starting from \texttt{u}. It is possible to prove that the expected number of steps required for a finger search is $O(1+\log r)$, where $r$ is the number values in $L_0$ between \texttt{x} and the value pointed to by the finger.
+
+  Design, i.e. provide the necessary pseudo code for, a version of a skiplist that implements \texttt{find(x)} operations using an internal finger. This subclass stores a finger, which is then used so that every \texttt{find(x)} operation is implemented as a finger search. During each \texttt{find(x)} operation the finger is updated so that each \texttt{find(x)} operation uses, as a starting point, a finger that points to the result of the previous \texttt{find(x)} operation.
+  \begin{solution}
+    Assuming that the finger always store the node in the \texttt{lowest list L0} and and having value less than \texttt{x}, the solution is given as:
+    \begin{algorithmic}
+    \Statex find(x , u) \Comment{x is the value and u is the finger(node)}
+    \Statex $h \leftarrow height$ \Comment{height of skiplist}
+    \Statex $r \leftarrow 0$ \Comment{starting from base list L0}
+    \While{$u.next[r].x < x$} \Comment{ascending levels as much as possible}
+    \While{$u[r+1] \neq None$}
+    \State $r \leftarrow r + 1$
+    \EndWhile
+    \State $u \leftarrow u.next[r]$
+    \EndWhile
+    \While{$r \geq 0$} \Comment{performing normal skiplist search operation}
+    \While{$u.next[r].x < x$}
+    \State $u \leftarrow u.next[r]$
+    \EndWhile
+    \State $r \leftarrow r - 1$
+    \EndWhile\\
+    return u
+    \end{algorithmic}
+  \end{solution}
+
+\end{questions}
+\end{document}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
