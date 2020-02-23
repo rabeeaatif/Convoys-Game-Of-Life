@@ -1,10 +1,211 @@
 import time
 from tkinter import *
+import random
 
-# An implementation of Conway's Game of Life
-#
-# Adapted from code by Abdullah Zafar
+var = 32
 
+class ChainedSet():
+    
+    def __init__(self, state):
+        self._initialize()
+        for i in state:
+            self.add(i)
+#             print("loops", self.table)
+        
+    def _initialize(self):
+        self.initial_len = 1
+        self.table = [[] for _ in range((1<<self.initial_len))]
+        self.z = random.randrange(1<<var) | 1
+        self.n = 0
+
+            
+    def clear(self):
+        self.initial_len = 1
+        self.table = [[] for _ in range((1<<self.initial_len))]
+        self.n = 0
+        
+
+    
+    def _resize(self):
+        self.initial_len = 1
+        while (1 << self.initial_len) <= self.n:
+            self.initial_len += 1
+            self.n = 0
+            temp = self.table
+            self.table = [[] for _ in range((1<<self.initial_len))]
+        for i in range(len(temp)):
+            for x in temp[i]:
+                self.add(x)
+                
+    
+    def _hash(self, x):
+        return ((self.z * hash(x)) % (1<<var)) >> (var-self.initial_len)
+    
+    def add(self, x):
+        if self.find(x) is not None:
+            return False
+        
+        if self.n+1 > len(self.table):
+            self._resize()
+        
+            
+        self.table[self._hash(x)].append(x)
+#         print("resize", self.table)
+        self.n += 1
+        return True
+    
+    def discard(self, x):
+        v = self.table[self._hash(x)]
+        for y in v:
+            if y == x:
+                v.remove(y)
+                self.n -= 1
+                if 3*self.n < len(self.table):
+                    self._resize() 
+                return y
+        return None 
+        
+    def find(self, x):
+        for y in self.table[self._hash(x)]:
+            if y == x:
+                return y
+        return None
+    
+    def __iter__(self):
+        for y in self.table:
+            for x in y:
+                yield x
+    
+    def returntable(self):
+        return self.table
+# def main():
+# glider = [(20, 40), (21, 40), (22, 40),
+#               (22, 41), (21, 42)]
+
+
+# c = ChainedSet(glider)
+# 
+# print(c.returntable())
+    
+#--------------------------------------------------------------------
+"""A Set implementation that uses hashing with chaining"""
+import random
+
+
+
+var = 32
+
+class ChainedDict:
+    
+    def __init__(self):
+        self._initialize()
+        
+    def _initialize(self):
+        self.initial_len = 1
+        self.table = [[] for _ in range((1<<self.initial_len))]
+        self.z = random.randrange(1<<var) | 1
+        self.n = 0
+        
+    def clear(self):
+        self.table = []
+        
+    def get(self,coord,i):
+#         print("entered")
+#         index = self.find(coord)
+#         if index == None:
+#             print("index",index)
+#             return 0
+#             self.add(coord)
+#             print(index)
+#         index = self.find(coord)
+        for x in self.table[self._hash(coord)]:
+            if x[0] == coord:
+                return x[1]
+        return i
+#                 print("nbr", x[1])
+#         return index
+            
+    def items(self):
+        item_array =[]
+        for x in self.table:
+            for y in x:
+                item_array.append(y)
+        return item_array
+            
+    def clear(self):
+        self.initial_len = 1
+        self.table = [[] for _ in range((1<<self.initial_len))]
+        self.n = 0
+        
+    def _alloc_table(self, s):
+        return [[] for _ in range(s)]
+    
+    def _resize(self):
+        self.initial_len = 1
+        while (1 << self.initial_len) <= self.n:
+            self.initial_len += 1
+            self.n = 0
+            temp = self.table
+            self.table = [[] for _ in range((1<<self.initial_len))]
+        for i in range(len(temp)):
+            for x in temp[i]:
+                self.add(x)
+                
+    
+    def _hash(self, x):
+        return ((self.z * hash(x)) % (1<<var)) >> (var-self.initial_len)
+    
+    def add(self, x):
+        if self.find(x) is not None: return False
+        
+        if self.n+1 > len(self.table):
+            self._resize()
+        
+            
+        self.table[self._hash(x)].append((x,0))
+        print("resize", self.table)
+        self.n += 1
+        return True
+    
+    def discard(self, x):
+        v = self.table[self._hash(x)]
+        for y in v:
+            if y == x:
+                v.remove(y)
+                self.n -= 1
+                if 3*self.n < len(self.table):
+                    self._resize() 
+                return y
+        return None 
+        
+    def find(self, x):
+        print("cord to find",x)
+        for y in self.table[self._hash(x)]:
+            if y[0] == x:
+#                 print("y", y)
+
+                return self._hash(x)
+
+        return None
+        
+    
+    def __iter__(self):
+        for y in self.table:
+            for x in y:
+                yield x
+    
+    def returntable(self):
+        return self.table
+    
+    def __setitem__(self,k, v):
+        h = self._hash(k)
+        l = len(self.table[h])
+        for x in range(l):
+                if self.table[h][x][0] == k:
+                               self.table[h][x] = (k,v)
+        self.table[h].append((k,v))
+
+    
 
 class Config:
     """Config class.
@@ -49,9 +250,11 @@ class Config:
 
 
 class Life:
-    """Life class.
+    """
 
+    Life class.
     The state of the game.
+    
     """
 
     def __init__(self, state: [(int, int)], chain: bool = True) -> None:
@@ -169,6 +372,11 @@ class Game:
             life.step()
 
 
+
+
+
+
+    
 def main():
     config = Config()
     config.animate = True
@@ -181,3 +389,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
