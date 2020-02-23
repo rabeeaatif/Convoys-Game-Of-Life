@@ -1,10 +1,96 @@
 import time
 from tkinter import *
+import random
 
-# An implementation of Conway's Game of Life
-#
-# Adapted from code by Abdullah Zafar
+var = 32
 
+class ChainedSet():
+    
+    def __init__(self, state):
+        self._initialize()
+        for i in state:
+            self.add(i)
+            print("loops", self.t)
+        
+    def _initialize(self):
+        self.d = 1
+        self.t = self._alloc_table((1<<self.d))
+        self.z = self._random_odd_int()
+        self.n = 0
+
+    def _random_odd_int(self):
+        return random.randrange(1<<var) | 1
+            
+    def clear(self):
+        self.d = 1
+        self.t = self._alloc_table((1<<self.d))
+        self.n = 0
+        
+    def _alloc_table(self, s):
+        return [[] for _ in range(s)]
+    
+    def _resize(self):
+        self.d = 1
+        while (1 << self.d) <= self.n:
+            self.d += 1
+            self.n = 0
+            old_t = self.t
+            self.t = self._alloc_table(1<<self.d)
+        for i in range(len(old_t)):
+            for x in old_t[i]:
+                self.add(x)
+                
+    
+    def _hash(self, x):
+        return ((self.z * hash(x)) % (1<<var)) >> (var-self.d)
+    
+    def add(self, x):
+        if self.find(x) is not None: return False
+        
+        if self.n+1 > len(self.t): self._resize()
+        
+            
+        self.t[self._hash(x)].append(x)
+        print("resize", self.t)
+        self.n += 1
+        return True
+    
+    def discard(self, x):
+        ell = self.t[self._hash(x)]
+        for y in ell:
+            if y == x:
+                ell.remove(y)
+                self.n -= 1
+                if 3*self.n < len(self.t):
+                    self._resize() 
+                return y
+        return None 
+        
+    def find(self, x):
+        for y in self.t[self._hash(x)]:
+            if y == x:
+                return y
+        return None
+    
+    def __iter__(self):
+        for ell in self.t:
+            for x in ell:
+                yield x
+    
+    def returntable(self):
+        return self.t
+# def main():
+# glider = [(20, 40), (21, 40), (22, 40),
+#               (22, 41), (21, 42)]
+
+
+# c = ChainedSet(glider)
+# 
+# print(c.returntable())
+    
+
+
+    
 
 class Config:
     """Config class.
@@ -49,9 +135,11 @@ class Config:
 
 
 class Life:
-    """Life class.
+    """
 
+    Life class.
     The state of the game.
+    
     """
 
     def __init__(self, state: [(int, int)], chain: bool = True) -> None:
@@ -169,6 +257,11 @@ class Game:
             life.step()
 
 
+
+
+
+
+    
 def main():
     config = Config()
     config.animate = True
@@ -181,3 +274,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
+
