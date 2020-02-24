@@ -38,7 +38,7 @@ class ChainedSet():
                 self.add(x)
                 
     
-    def _hash(self, x):
+    def _hash(self, x): #return index
         return ((self.z * hash(x)) % (1<<var)) >> (var-self.initial_len)
     
     def add(self, x):
@@ -53,7 +53,7 @@ class ChainedSet():
         self.n += 1
         return True
     
-    def discard(self, x):
+    def discard(self, x): #removing x
         v = self.table[self._hash(x)]
         for y in v:
             if y == x:
