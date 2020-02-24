@@ -564,7 +564,7 @@ def main():
     config.rounds = 1000
     config.start = Config.glider
     config.speed = 5
-    life = Life(config.start, False)
+    life = Life(config.start)
     Game.run(life, config)
 
 
