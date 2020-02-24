@@ -11,7 +11,6 @@ class ChainedSet():
         self._initialize()
         for i in state:
             self.add(i)
-#             print("loops", self.table)
         
     def _initialize(self):
         self.initial_len = 1
@@ -51,7 +50,6 @@ class ChainedSet():
         
             
         self.table[self._hash(x)].append(x)
-#         print("resize", self.table)
         self.n += 1
         return True
     
@@ -79,15 +77,7 @@ class ChainedSet():
     
     def returntable(self):
         return self.table
-# def main():
-# glider = [(20, 40), (21, 40), (22, 40),
-#               (22, 41), (21, 42)]
-
-
-# c = ChainedSet(glider)
-# 
-# print(c.returntable())
-    
+  
 #--------------------------------------------------------------------
 """A Set implementation that uses hashing with chaining"""
 import random
@@ -111,20 +101,10 @@ class ChainedDict:
         self.table = []
         
     def get(self,coord,i):
-#         print("entered")
-#         index = self.find(coord)
-#         if index == None:
-#             print("index",index)
-#             return 0
-#             self.add(coord)
-#             print(index)
-#         index = self.find(coord)
         for x in self.table[self._hash(coord)]:
             if x[0] == coord:
                 return x[1]
         return i
-#                 print("nbr", x[1])
-#         return index
             
     def items(self):
         item_array =[]
@@ -183,7 +163,6 @@ class ChainedDict:
         print("cord to find",x)
         for y in self.table[self._hash(x)]:
             if y[0] == x:
-#                 print("y", y)
 
                 return self._hash(x)
 
