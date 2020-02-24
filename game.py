@@ -89,6 +89,200 @@ class ChainedSet():
 # print(c.returntable())
     
 
+#-----------------------------------------------------------------
+var  = 32
+
+class LinearSet:
+
+    def __init__ (self, state=[]):
+        
+        self._del = object()
+        self._d=2
+        self._q=0
+        self._n=0
+        self._table=[]
+        self._z=random.randrange(1<<var)
+        for _i in range(1<<self._d):
+            self._table.append(None)
+        for i in state:
+            self.add(i)
+        
+    def _hash(self, x):
+        return ((self._z * hash(x)) % (1<<var)) >> (var-self._d)
+    
+
+    def resize(self):
+        self._d= int(math.log2(3*self._n))
+        temp = self._table
+        self._table = []
+
+        for _i in range (1<<self._d):
+            self._table.append(None)
+        self._q=self._n
+        for x in temp:
+            if x!=None and x!=self._del:
+                i=self._hash(x)
+                
+                while self._table[i]!= None:
+                    i= i=(i+1) % (1<<self._d)
+                    
+                self._table[i]=x
+
+    def add(self,x):
+        if self.find(x)!=None:
+            return False
+        
+        
+        if (1<<(self._q+1)>len(self._table)): 
+            self.resize()
+        i=self._hash(x)
+        
+        while ((self._table[i]!=None) and (self._table[i]!=self._del)):
+            i=(i+1)% (1<<self._d)
+        if self._table[i]==None:
+            self._q+=1
+        self._n+=1
+        self._table[i]=x
+        return True
+
+    def find(self,x):
+        i = self._hash(x)
+        while self._table[i]!=None:
+            if  (self._table[i]!=self._del and x==self._table[i]):
+                return self._table[i]
+            i=(i+1) % (1<<self._d)
+    
+    def discard(self,x):
+        i = self._hash(x)
+        while self._table[i]!= None:
+            y=self._table[i]
+            if y!=self._del and x==y:
+               self._table[i]=self._del
+               self._n=self._n-1
+               if (8*self._n < 2**self._d):
+                   self.resize()
+               return y
+            i=(i+1) % 2**self._d
+        return None
+
+    def __iter__(self):
+        for x in self._table:
+            if x!=None and x!=self._del:
+                yield x
+                
+class LinearDict:
+
+    def __init__ (self, state=[]):
+        self._del = object()
+        self._d=2
+        self._q=0
+        self._n=0
+        self._z=random.randrange(1<<var)
+        self._table=[]
+        for _i in range(1<<self._d):
+            self._table.append(None)
+    
+
+    def _hash(self,x):
+        return ((self._z*hash(x)) % 1<<(var)) >> (var - self._d)
+
+    def resize(self):
+        self._d= int (math.log2(3*self._n))
+        temp = self._table
+        self._table = []
+
+        for i in range (1<<self._d):
+            self._table.append(None)
+        self._q=self._n
+        for x in temp:
+            if x!=None and x!=self._del:
+                i=self._hash(x[0])
+                while self._table[i]!= None:
+                    i= i=(i+1) % (1<<self._d)
+                self._table[i]=x
+
+
+
+    def find(self,x):
+        i = self._hash(x)
+        while self._table[i]!=None:
+            if  (self._table[i]!=self._del and x==self._table[i][0]):
+                return i
+            i=(i+1) % (1<<self._d)
+
+
+    def add(self,x):
+        if self.find(x)!=None:
+            return False
+        
+        if (2*(self._q+1) > len(self._table)): 
+            self.resize()
+        i=self._hash(x)
+        
+        while ((self._table[i]!=None)
+               and (self._table[i]!=self._del)):
+            i=(i+1)% 2**self._d
+        if self._table[i]==None:
+            self._q+=1
+        self._n+=1
+        self._table[i]=(x,0)
+        return True
+
+
+    
+    def get(self, coord, defaultvalue):
+        key = self._hash(coord)
+        while self._table[key]!=None:
+            if  (self._table[key]!=self._del and
+                 coord==self._table[key][0]):
+                
+                return self._table[key][1]
+            
+            key=(key+1) % (1<<self._d)
+        self.add(coord)
+        return 0
+    
+    
+    def discard(self,x):
+        i =self._hash(x)
+        while self._table[i]!= None:
+            y=self._table[i]
+            if y!=self._del and x==y[0]:
+               self._table[i]= self._del
+               self._n=self._n-1
+               
+               if (8*self._n< 2**self._d):
+                   self.resize()
+                   
+               return y
+            i=(i+1) % 2**self._d
+        return None
+
+
+    def __setitem__(self, k, v):
+        i = self._hash(k)
+        while self._table[i]!=None:
+            if  (self._table[i]!=self._del and
+                 k==self._table[i][0]):
+                self._table[i] = (k, v)
+            i=(i+1) % (2**self._d)
+
+
+    def __iter__(self):
+        for i in self._table:
+            if i!=None and i!=self._del:
+                yield i
+
+    def items(self):
+        arr=[]
+        for i in self._table:
+            if (i is not None) and (i is not self._del):
+                arr.append(i)
+        return arr
+    
+    def clear(self):
+        self.__init__()
+            
 
     
 
