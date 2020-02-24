@@ -4,7 +4,7 @@ import random
 import math
 
 var = 32
-
+#----------C H A I N E D   S E T -----------------#
 class ChainedSet():
     
     def __init__(self, state):
@@ -15,7 +15,7 @@ class ChainedSet():
     def _initialize(self):
         self.initial_len = 1
         self.table = [[] for _ in range((1<<self.initial_len))]
-        self.z = random.randrange(1<<var) | 1
+        self.z = random.randrange(1<<var) | 1 #value to be used to calculate hash
         self.n = 0
 
             
@@ -78,12 +78,7 @@ class ChainedSet():
     def returntable(self):
         return self.table
   
-#--------------------------------------------------------------------
-"""A Set implementation that uses hashing with chaining"""
-import random
-
-
-
+#----------C H A I N E D   D I C T -----------------#
 var = 32
 
 class ChainedDict:
@@ -184,7 +179,8 @@ class ChainedDict:
                 if self.table[h][x][0] == k:
                                self.table[h][x] = (k,v)
         self.table[h].append((k,v))
-#------------------------------------------------------------------------------
+        
+#----------L I N E A R  S E T -----------------#
 var  = 32
 
 class LinearSet:
@@ -207,8 +203,9 @@ class LinearSet:
     
 
     def resize(self):
-        self._d= int(math.log2(3*self._n))
-        temp = self._table
+        
+        self._d= int(math.log2(3*self._n)) #since 2^d < 3n 
+        temp = self._table #copying current tables values
         self._table = []
 
         for _i in range (1<<self._d):
@@ -265,6 +262,7 @@ class LinearSet:
             if x!=None and x!=self._del:
                 yield x
                 
+#----------L I N E A R   D I C T -----------------#
 class LinearDict:
 
     def __init__ (self, state=[]):
@@ -289,7 +287,7 @@ class LinearDict:
         for i in range (1<<self._d):
             self._table.append(None)
         self._q=self._n
-        for x in temp:
+        for x in temp: #allocatind data from temp to the new array
             if x!=None and x!=self._del:
                 i=self._hash(x[0])
                 while self._table[i]!= None:
@@ -334,7 +332,7 @@ class LinearDict:
                 return self._table[key][1]
             
             key=(key+1) % (1<<self._d)
-        self.add(coord)
+        self.add(coord)+
         return 0
     
     
