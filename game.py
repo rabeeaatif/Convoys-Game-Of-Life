@@ -1,6 +1,7 @@
 import time
 from tkinter import *
 import random
+import math
 
 var = 32
 
@@ -402,7 +403,6 @@ class LinearDict:
 
 class Config:
     """Config class.
-
     Contains game configurations .
     """
 
@@ -417,10 +417,8 @@ class Config:
 
     def __init__(self) -> None:
         """Provides a default configuration.
-
         Args:
         - self: automatic object reference.
-
         Returns:
         none
         """
@@ -444,7 +442,6 @@ class Config:
 
 class Life:
     """
-
     Life class.
     The state of the game.
     
@@ -452,12 +449,10 @@ class Life:
 
     def __init__(self, state: [(int, int)], chain: bool = True) -> None:
         """Initializes game state and internal variables.
-
         Args:
         - self: automatic object reference.
         - state: initial congifuration - (x,y) coordinates of live cells
         - chain: controls whether to use chaining (True) or linear probiing (False)
-
         Returns:
         none
         """
@@ -474,12 +469,9 @@ class Life:
 
     def step(self) -> None:
         """One iteration of the game.
-
         Applies game rules on current live cells in order to compute the next state of the game.
-
         Args:
         - self: automatic object reference.
-
         Returns:
         none
         """
@@ -508,10 +500,8 @@ class Life:
 
     def state(self) -> [(int, int)]:
         """Returns the current state of the game.
-
         Args:
         - self: automatic object reference.
-
         Returns:
         Coordinates of live cells .
         """
@@ -522,11 +512,9 @@ class Life:
 class Game:
     def run(life, config) -> None:
         """Runs the game as per config.
-
         Args:
         - life: the instance to run.
         - config: contains game configurations.
-
         Returns:
         nothing.
         """
@@ -576,10 +564,9 @@ def main():
     config.rounds = 1000
     config.start = Config.glider
     config.speed = 5
-    life = Life(config.start)
+    life = Life(config.start, False)
     Game.run(life, config)
 
 
 if __name__ == '__main__':
     main()
-    
